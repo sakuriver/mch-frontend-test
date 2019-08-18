@@ -44,6 +44,26 @@ body {
   font-size: 0.8em;
 }
 
+.duel_menu {
+  float: left;
+  width: 80%;
+  height: 4em;
+  padding: 1%;
+  text-align: center;
+  background-color: #dfefff;
+  border: 1px solid #069;
+  border-radius: 3px;
+  position: relative;
+}
+
+.duel_menu dt {
+  border-bottom: 1px dotted #096;
+}
+.duel_menu dd {
+  margin-left: 0;
+  font-size: 0.8em;
+}
+
 .title_button {
   height: 3em;
   text-align: center;
@@ -60,8 +80,8 @@ body {
 }
 
 #map {
-  width:300px;
-  height:300px;
+  width: 300px;
+  height: 300px;
 }
 
 dl a {

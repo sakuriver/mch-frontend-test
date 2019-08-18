@@ -17,6 +17,7 @@
   <header>
 
   </header>
+  <a href="app_top.html">トップ画面へ戻る</a>
   <div>プレイヤーの位置情報</div>
   <div id="show_result">
   </div>
@@ -52,11 +53,12 @@ function successCallback(position) {
     gl_text += "速度：" + position.coords.speed + "<br>";
     //マーカーに表示したい対象の緯度経度とポップアップする名称を設定
     var markerList = [
-      { pos: [position.coords.latitude, position.coords.longitude], name: "セブンイレブン浦和埼玉大学店" },
+      { pos: [position.coords.latitude, position.coords.longitude], name: "僕のヒーロー" },
     ];
 
     //マーカー全体が入るボックスを作る
     var bound = L.latLngBounds(markerList[0].pos, markerList[0].pos);
+
     var sampleIcon = L.icon({
         iconUrl: markerUrl,
         iconRetinaUrl: markerUrl,
