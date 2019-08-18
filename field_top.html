@@ -4,6 +4,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta charset="UTF-8">
   <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.0/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.3.0/dist/leaflet.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
 <body>
 <h1>みんなと一緒 <small>NFT World</small></h1>
@@ -14,28 +17,136 @@
   <header>
 
   </header>
+  <div>プレイヤーの位置情報</div>
   <div id="show_result">
   </div>
+
+  <div id="map"></div>
 </div>
 <footer>
 	  <img src="mch_plus_logo.png">
 </footer>
 </body>
 <script>
+var map = L.map('map');
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+        attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+}).addTo(map);
+var markerUrl = "";
+var markerComment = "";
 //ユーザーの現在の位置情報を取得
-navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+function updatePosition() {
+    if (document.getElementById("show_result").innerHTML != null) {
+        document.getElementById("show_result").innerHTML = "";
+    }
+
+    navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+}
 
 /***** ユーザーの現在の位置情報を取得 *****/
 function successCallback(position) {
   var gl_text = "緯度：" + position.coords.latitude + "<br>";
     gl_text += "経度：" + position.coords.longitude + "<br>";
     gl_text += "高度：" + position.coords.altitude + "<br>";
-    gl_text += "緯度・経度の誤差：" + position.coords.accuracy + "<br>";
-    gl_text += "高度の誤差：" + position.coords.altitudeAccuracy + "<br>";
     gl_text += "方角：" + position.coords.heading + "<br>";
     gl_text += "速度：" + position.coords.speed + "<br>";
-  document.getElementById("show_result").innerHTML = gl_text;
+    //マーカーに表示したい対象の緯度経度とポップアップする名称を設定
+    var markerList = [
+      { pos: [position.coords.latitude, position.coords.longitude], name: "セブンイレブン浦和埼玉大学店" },
+    ];
+
+    //マーカー全体が入るボックスを作る
+    var bound = L.latLngBounds(markerList[0].pos, markerList[0].pos);
+    var sampleIcon = L.icon({
+        iconUrl: markerUrl,
+        iconRetinaUrl: markerUrl,
+        iconSize: [50, 50],
+        iconAnchor: [25, 50],
+        popupAnchor: [0, -50],
+    });
+    //markerListの設定でマーカーを追加
+    for (var num in markerList)  {
+        var mk = markerList[num];
+        var popup = L.popup().setContent(mk.name);
+        var mapMarker = L.marker(mk.pos, { title: mk.name, icon: sampleIcon }).bindPopup(popup).addTo(map);
+        mapMarker.bindPopup(markerComment + "<br/>一緒に歩いた距離：1km").openPopup();        
+        //マーカー全体が入るボックスを広げる
+        bound.extend(mk.pos);
+    }
+    //マーカー全体が入るように地図範囲を設定する
+    map.fitBounds(bound);
+    if (document.getElementById("show_result").innerHTML != null) {    
+      document.getElementById("show_result").innerHTML = gl_text;
+    }
 }
+
+/**
+ * Get the URL parameter value
+ *
+ * @param  name {string} パラメータのキー文字列
+ * @return  url {url} 対象のURL文字列（任意）
+ */
+function getParam(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return '10314';
+    if (!results[2]) return '10314';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+function getHeroData() {
+    var user_id = getParam('user_id', location.search);
+    $.ajax({
+        url: 'https://www.mycryptoheroes.net/api/proxy/mch/users/' + user_id,  // リクエスト送信先URL
+        type: 'GET', // get or postメソッド
+        timeout: 2000, // タイムアウト時間をミリ秒で設定
+        cache: false,  // キャッシュ無効
+        data: {}, // サーバーに送信する値
+        dataType: 'json' // サーバーから返されるデータ型
+    }).done(function (response, textStatus, jqXHR) {
+        console.log(jqXHR);
+        console.log(response);
+        if (jqXHR.status == 200) {
+            // 通信成功
+            getHeroMetaData(response.party[0]);
+        } else {
+            // 通信失敗
+            alert('error.');
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        // 通信失敗
+        alert('error.');
+    });
+}
+
+function getHeroMetaData(heroId) {
+    $.ajax({
+        url: 'https://www.mycryptoheroes.net/metadata/hero/' + heroId,  // リクエスト送信先URL
+        type: 'GET', // get or postメソッド
+        timeout: 2000, // タイムアウト時間をミリ秒で設定
+        cache: false,  // キャッシュ無効
+        data: {}, // サーバーに送信する値
+        dataType: 'json' // サーバーから返されるデータ型
+    }).done(function (response, textStatus, jqXHR) {
+        console.log(jqXHR);
+        console.log(response);
+        if (jqXHR.status == 200) {
+            // 通信成功
+            markerComment = response.name;
+            markerUrl = response.image_url;
+            updatePosition();
+        } else {
+            // 通信失敗
+            alert('error.');
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        // 通信失敗
+        alert('error.');
+    });  
+}
+
 
 /***** 位置情報が取得できない場合 *****/
 function errorCallback(error) {
@@ -55,6 +166,8 @@ function errorCallback(error) {
   document.getElementById("show_result").innerHTML = err_msg;
   //デバッグ用→　document.getElementById("show_result").innerHTML = error.message;
 }
+
+setInterval("getHeroData()" ,3000);
 </script>
 </html>
 

@@ -34,6 +34,7 @@ body {
   background-color: #dfefff;
   border: 1px solid #069;
   border-radius: 3px;
+  position: relative;
 }
 .top_menu dt {
   border-bottom: 1px dotted #069;
@@ -58,6 +59,11 @@ body {
   filter: brightness(120%);
 }
 
+#map {
+  width:300px;
+  height:300px;
+}
+
 dl a {
   position: absolute;
   width: 100%;
@@ -67,4 +73,8 @@ dl a {
   text-indent: 100%; /*テキスト非表示*/
   white-space: nowrap; /*テキスト非表示*/
   overflow: hidden; /*テキスト非表示*/
+}
+
+#show_result {
+  height: 168px;
 }
