@@ -29,15 +29,15 @@ var map = L.map('map');
     L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
         attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
 }).addTo(map);
-var markerUrl = "";
 var markerComment = "";
 
-var positionList = [];
-var positionList['1'] = {lat:43.059875, lon:141.34776, name:'コロナの大会'};
-var positionList['2'] = {lat:35.6804, lon:139.769017, name:'公式大会'};
+var positionList = {};
+positionList['1'] = {lat:43.059875, lon:141.34776, name:'コロナの大会'};
+positionList['2'] = {lat:35.6804, lon:139.769017, name:'公式大会'};
 /** デュエルの詳細情報描画 **/
 function detailDraw() {
     //マーカーに表示したい対象の緯度経度とポップアップする名称を設定
+    console.log('drawStart');
 
     var lat, lon, name;
 
@@ -48,7 +48,7 @@ function detailDraw() {
       name = "ランダム大会";
     } else {
       lat = positionList[duel_id]['lat'];
-      lat = positionList[duel_id]['lon'];
+      lon = positionList[duel_id]['lon'];
       name = positionList[duel_id]['name'];;      
     }
 
@@ -57,20 +57,14 @@ function detailDraw() {
     ];
 
     //マーカー全体が入るボックスを作る
+    console.log(markerList[0].pos);
     var bound = L.latLngBounds(markerList[0].pos, markerList[0].pos);
 
-    var sampleIcon = L.icon({
-        iconUrl: markerUrl,
-        iconRetinaUrl: markerUrl,
-        iconSize: [50, 50],
-        iconAnchor: [25, 50],
-        popupAnchor: [0, -50],
-    });
     //markerListの設定でマーカーを追加
     for (var num in markerList)  {
         var mk = markerList[num];
         var popup = L.popup().setContent(mk.name);
-        L.marker(mk.pos, { title: mk.name, icon: sampleIcon }).bindPopup(popup).addTo(map);
+        var mapMarker = L.marker(mk.pos, { title: mk.name }).bindPopup(popup).addTo(map);
         mapMarker.bindPopup(name).openPopup();        
         //マーカー全体が入るボックスを広げる
         bound.extend(mk.pos);
@@ -98,5 +92,4 @@ function getParam(name, url) {
 detailDraw();
 </script>
 </html>
-
 
