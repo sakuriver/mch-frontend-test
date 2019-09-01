@@ -98,3 +98,28 @@ dl a {
 #show_result {
   height: 168px;
 }
+
+.character_detail {
+  border-style: solid;
+}
+
+.character_album_list {
+  border-style: solid;
+}
+
+
+@media screen and (max-width: 450px) {
+  .character_detail {
+    height: 300px;
+  }
+  .character_album_list {
+  }
+}
+
+@media screen and (min-width: 451px) {
+  .character_detail {
+    height: 300px;
+  }
+  .character_album_list {
+  }
+}
